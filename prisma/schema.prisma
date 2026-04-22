@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  STAFF
+  DRIVER
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  PICKUP
+  PROCESS
+  WASHING
+  DRYING
+  DONE
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  QRIS
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+}
+
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+  email    String @unique
+  password String
+  role     Role   @default(CUSTOMER)
+
+  orders         Order[]
+  assignedOrders Order[]   @relation("DriverOrders")
+  handledOrders  Order[]   @relation("HandledOrders")
+  addresses      Address[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id     String @id @default(uuid())
+  userId String
+  detail String
+  city   String
+  postal String
+
+  user User @relation(fields: [userId], references: [id])
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LaundryService {
+  id          String  @id @default(uuid())
+  name        String
+  price       Float
+  description String?
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  driverId    String?
+  addressId   String
+  handledById String?
+  status      OrderStatus @default(PENDING)
+  totalPrice  Float
+
+  rejectionReason String?
+
+  user      User    @relation(fields: [userId], references: [id])
+  driver    User?   @relation("DriverOrders", fields: [driverId], references: [id])
+  handledBy User?   @relation("HandledOrders", fields: [handledById], references: [id])
+  address   Address @relation(fields: [addressId], references: [id])
+
+  items   OrderItem[]
+  payment Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  serviceId String
+  quantity  Int
+  price     Float
+
+  order   Order          @relation(fields: [orderId], references: [id])
+  service LaundryService @relation(fields: [serviceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id      String        @id @default(uuid())
+  orderId String        @unique
+  method  PaymentMethod
+  status  PaymentStatus @default(UNPAID)
+  amount  Float
+  paidAt  DateTime?
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

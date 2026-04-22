@@ -1,0 +1,108 @@
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { RegisterDto } from './dto/register.dto';
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  role?: string;
+  password?: string;
+}
+
+export interface TokenResponseDto {
+  message: string;
+  access_token: string;
+}
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async register(dto: RegisterDto) {
+    const email = dto.email.toLowerCase().trim();
+    const username = dto.username.trim();
+
+    const existingEmail = await this.usersService.findByEmail(email);
+    if (existingEmail) {
+      throw new BadRequestException('Email sudah digunakan');
+    }
+
+    const existingUsername = await this.usersService.findByUsername(username);
+    if (existingUsername) {
+      throw new BadRequestException('Username sudah digunakan');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const hashedPassword = await bcrypt.hash(dto.password.trim(), 10);
+
+    const user = await this.usersService.create({
+      username,
+      email,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      password: hashedPassword,
+      role: 'CUSTOMER',
+    });
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async validateUser(username: string, password: string): Promise<User> {
+    const user = await this.usersService.findByUsername(username.trim());
+
+    if (!user) {
+      throw new UnauthorizedException('User tidak ditemukan');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('Password tidak tersedia');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const isMatch = await bcrypt.compare(password.trim(), user.password);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Password salah');
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      password: user.password,
+    };
+  }
+
+  async login(username: string, password: string): Promise<TokenResponseDto> {
+    const user = await this.validateUser(username, password);
+    return this.generateToken(user);
+  }
+
+  private generateToken(user: User): TokenResponseDto {
+    return {
+      message: 'Berhasil login',
+      access_token: this.jwtService.sign({
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+      }),
+    };
+  }
+}
