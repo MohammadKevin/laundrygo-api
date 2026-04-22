@@ -63,8 +63,10 @@ export class AuthService {
     };
   }
 
-  async validateUser(username: string, password: string): Promise<User> {
-    const user = await this.usersService.findByUsername(username.trim());
+  async validateUser(email: string, password: string): Promise<User> {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await this.usersService.findByEmail(normalizedEmail);
 
     if (!user) {
       throw new UnauthorizedException('User tidak ditemukan');
@@ -86,12 +88,11 @@ export class AuthService {
       username: user.username,
       email: user.email,
       role: user.role,
-      password: user.password,
     };
   }
 
-  async login(username: string, password: string): Promise<TokenResponseDto> {
-    const user = await this.validateUser(username, password);
+  async login(email: string, password: string): Promise<TokenResponseDto> {
+    const user = await this.validateUser(email, password);
     return this.generateToken(user);
   }
 
