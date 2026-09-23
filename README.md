@@ -12,19 +12,19 @@
 
 ---
 
-## 📌 Overview
+## Overview
 RESTful API built with NestJS and Prisma ORM delivering fast and reliable endpoints for laundry transaction processing and tracking.
 
 ---
 
-## ✨ Key Features
+## Key Features
 - High-speed CRUD endpoints for laundry operations
 - Secure token authentication with passport-jwt
 - Input validation with class-validator and DTO pattern
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 - **Framework**: NestJS
 - **Language**: TypeScript
 - **ORM**: Prisma ORM
@@ -32,7 +32,7 @@ RESTful API built with NestJS and Prisma ORM delivering fast and reliable endpoi
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 ```text
 laundrygo-api/
 ├── src/
@@ -44,7 +44,7 @@ laundrygo-api/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 Make sure you have the required runtimes and tools installed on your machine:
@@ -61,7 +61,7 @@ npm run start:dev
 
 ---
 
-## 👤 Author
+## Author
 **Mohammad Kevin Arif Rudianto**
 - **GitHub:** [@MohammadKevin](https://github.com/MohammadKevin)
 - **Portfolio:** [portfolio-mohammadkevin.vercel.app](https://portfolio-mohammadkevin.vercel.app)
@@ -70,9 +70,9 @@ npm run start:dev
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 <div align="center">
-⭐️ If you found this repository useful, please consider giving it a star!
+If you found this repository useful, please consider giving it a star!
 </div>
