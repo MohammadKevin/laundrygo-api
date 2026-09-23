@@ -18,9 +18,9 @@ RESTful API built with NestJS and Prisma ORM delivering fast and reliable endpoi
 ---
 
 ## ✨ Key Features
-- ⚡ **High-speed CRUD endpoints for laundry operations**: High-speed CRUD endpoints for laundry operations
-- ⚡ **Secure token authentication with passport-jwt**: Secure token authentication with passport-jwt
-- ⚡ **Input validation with class-validator and DTO pattern**: Input validation with class-validator and DTO pattern
+- High-speed CRUD endpoints for laundry operations
+- Secure token authentication with passport-jwt
+- Input validation with class-validator and DTO pattern
 
 ---
 
